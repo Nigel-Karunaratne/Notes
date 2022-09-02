@@ -82,9 +82,10 @@ class TextView extends StatefulWidget {
 class _TextViewState extends State<TextView> {
   final _focusNode = FocusNode();
 
+  //TODO : Everything regarding this method needs to be removed. This is just a test and will be implemented right when shortcuts are added later
   void _b(RawKeyEvent value) {
       if (value is RawKeyDownEvent) {
-        if(value.logicalKey == LogicalKeyboardKey.keyB) {
+        if(value.logicalKey == LogicalKeyboardKey.controlLeft) {
           widget._controller.formatText(widget._controller.selection.end, 0, Attribute.bold);
         }
       if(value.logicalKey == LogicalKeyboardKey.keyU) {
@@ -105,6 +106,51 @@ class _TextViewState extends State<TextView> {
   @override
   Widget build(BuildContext context) {
     RawKeyboard.instance.addListener(_b);
+
+    QuillEditor editor =  QuillEditor(
+              controller: widget._controller,
+              scrollController: ScrollController(),
+              scrollable: true,
+              focusNode: _focusNode,
+              autoFocus: false,
+              readOnly: false,
+              placeholder: 'Start Typing...',
+              expands: false,
+              padding: EdgeInsets.zero,
+
+              customStyles: DefaultStyles(
+                placeHolder: DefaultTextBlockStyle(
+                  const TextStyle(
+                    fontFamily: "RobotoMono",
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                  const Tuple2(8, 0),
+                  const Tuple2(0, 0),
+                  null
+                ),
+                paragraph: DefaultTextBlockStyle(
+                  const TextStyle(
+                    fontFamily: "RobotoMono",
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                  const Tuple2(8, 0),
+                  const Tuple2(0, 0),
+                  null
+                ),
+                h1: DefaultTextBlockStyle(
+                  const TextStyle(
+                    fontFamily: "RobotoMono",
+                    fontSize: 48,
+                    color: Colors.black,
+                  ),
+                  const Tuple2(8, 0),
+                  const Tuple2(0, 0),
+                  null
+                ),
+              ),
+            );
         
     return Column(
       children: [
@@ -133,45 +179,7 @@ class _TextViewState extends State<TextView> {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-            // child: QuillEditor.basic(
-            //   controller: widget._controller,
-            //   readOnly: false,
-            // ),
-            child: QuillEditor(
-              controller: widget._controller,
-              scrollController: ScrollController(),
-              scrollable: true,
-              focusNode: _focusNode,
-              autoFocus: false,
-              readOnly: false,
-              placeholder: 'Start Typing...',
-              expands: false,
-              padding: EdgeInsets.zero,
-
-              customStyles: DefaultStyles(
-                paragraph: DefaultTextBlockStyle(
-                  const TextStyle(
-                    fontFamily: "RobotoMono",
-                    fontSize: 16,
-                    color: Colors.black,
-                  ),
-                  const Tuple2(8, 0),
-                  const Tuple2(0, 0),
-                  null
-                ),
-                h1: DefaultTextBlockStyle(
-                  const TextStyle(
-                    fontFamily: "RobotoMono",
-                    fontSize: 48,
-                    color: Colors.black,
-                  ),
-                  const Tuple2(8, 0),
-                  const Tuple2(0, 0),
-                  null
-                ),
-              ),
-
-            ),
+            child: editor,
           ),
         ),
       ],
