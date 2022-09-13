@@ -127,14 +127,6 @@ class TextEditorModel extends ChangeNotifier {
       const SingleActivator(LogicalKeyboardKey.bracketRight, control: true): () {
         quillController.formatSelection(Attribute.indentL1);
       },
-      // find on page?
-      /* const SingleActivator(LogicalKeyboardKey.keyF, control: true): () {
-         if(quillController.getSelectionStyle().attributes.keys.contains("underline")) {
-           quillController.formatSelection(Attribute.clone(Attribute.underline, null));
-         } else {
-           quillController.formatSelection(Attribute.underline);
-         }
-       }, */
     };
   }
 
