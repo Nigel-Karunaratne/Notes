@@ -130,6 +130,16 @@ class TextEditorModel extends ChangeNotifier {
     };
   }
 
+  void togglePanel({bool? newValue}) {
+    if(newValue != null) {
+      isSideBarExpanded = newValue;
+    }
+    else {
+      isSideBarExpanded = !isSideBarExpanded;
+    }
+    notifyListeners();
+  }
+
   void saveCurrentNote() async{
     String json = jsonEncode(quillController.document.toDelta().toJson());
     File newFile = File("${Directory.current.path}\\notes\\${notes[currentNote]}.json");

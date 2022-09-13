@@ -26,19 +26,30 @@ class MainView extends StatefulWidget {
 }
 
 class MainViewState extends State<MainView> {
+  TextEditingController _controller = TextEditingController(text: 'Note Title');
   @override
   Widget build(BuildContext context) {
     return CallbackShortcuts(
       bindings: Provider.of<TextEditorModel>(context, listen: false).bindings,
       child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.brush_outlined, color: Colors.blue,),
+            onPressed: () {
+              Provider.of<TextEditorModel>(context, listen: false).togglePanel();
+            }, //TODO : Make this button expand the side panel
+          ),
+          title: Center( //TODO : Make this look good / replace it? The controller is not in the model.
+            child: TextField(
+              controller: _controller,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
         body: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Provider.of<TextEditorModel>(context).isSideBarExpanded ? SidePanel() : Container(),
-            const VerticalDivider(
-              thickness: 10,
-              width: 10,
-            ),
+            SidePanel(),
             Expanded(child: TextView()),
           ],
         ),
@@ -140,32 +151,48 @@ class _SidePanelState extends State<SidePanel> {
   @override
   Widget build(BuildContext context) {
     return Consumer<TextEditorModel>(
-      builder: ((context, model, child) => SizedBox(
-        width: 200,
-        child: ListView.builder(
-          itemBuilder: ((context, index) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: TextButton(
-                onPressed: () {
-    
-                },
-                style: ButtonStyle(
-                  shape: MaterialStateProperty.all(const RoundedRectangleBorder()),
-                  backgroundColor: MaterialStateProperty.all(Colors.grey[300]!),
-                  textStyle: MaterialStateProperty.all(const TextStyle(color: Colors.black, fontFamily: "RobotoMono"))
-                ),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-                  child: Text(model.notes[index]),
-                ),
+      builder: ((context, model, child) => model.isSideBarExpanded ?
+        //*Expanded View 
+        Row(
+          children: [
+            SizedBox(
+              width: 200,
+              child: ListView.builder(
+                itemBuilder: ((context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: TextButton(
+                      onPressed: () {
+      
+                      },
+                      style: ButtonStyle(
+                        shape: MaterialStateProperty.all(const RoundedRectangleBorder()),
+                        backgroundColor: MaterialStateProperty.all(Colors.grey[300]!),
+                        textStyle: MaterialStateProperty.all(const TextStyle(color: Colors.black, fontFamily: "RobotoMono"))
+                      ),
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                        child: Text(model.notes[index]),
+                      ),
+                    ),
+                  );
+                }),
+                itemCount: model.notes.length,
               ),
-            );
-          }),
-          itemCount: model.notes.length,
-        ),
-      )),
+            ),
+            const VerticalDivider(
+              thickness: 10,
+              width: 10,
+            ),
+          ],
+        ) : 
+        //* Retracted View
+        SizedBox(
+          width: 25,
+          child: Container(),
+        )
+      ),
     );
   }
 }
