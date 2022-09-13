@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
 // ignore: depend_on_referenced_packages
 import 'package:tuple/tuple.dart';
+import 'package:provider/provider.dart';
+
+import 'package:notes/model.dart';
 
 void main() {
-  runApp(MaterialApp(
-    title: "Notes",
-    theme: ThemeData(
-      useMaterial3: true,
-      primaryColor: Colors.amber
+  runApp(ChangeNotifierProvider(
+    create: (context) => TextEditorModel(),
+    child: MaterialApp(
+      title: "Notes",
+      theme: ThemeData(useMaterial3: true, primaryColor: Colors.amber),
+      routes: {"/": (context) => const MainView()},
+      initialRoute: "/",
     ),
-    routes: {
-      "/": (context) => const MainView()
-    },
-    initialRoute: "/",
   ));
 }
 
@@ -28,43 +28,20 @@ class MainView extends StatefulWidget {
 class MainViewState extends State<MainView> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // appBar: AppBar(
-      //   title: const Center(
-      //     child: Text("App Name"),
-      //   ),
-      // ),
-      body: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          SizedBox( //TODO: Make this it's own class w/ ability to expand and retract it
-            width: 200,
-            child: ListView.builder(
-              itemBuilder: ((context, index) {
-                return Card(
-                  elevation: 0,
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                  margin: const EdgeInsets.symmetric(vertical: 1,),
-                  color: Colors.grey[300]!,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-                    child: Text("Card #$index"),
-                  ),
-                );
-              }),
-              itemCount: 10,
+    return CallbackShortcuts(
+      bindings: Provider.of<TextEditorModel>(context, listen: false).bindings,
+      child: Scaffold(
+        body: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Provider.of<TextEditorModel>(context).isSideBarExpanded ? SidePanel() : Container(),
+            const VerticalDivider(
+              thickness: 10,
+              width: 10,
             ),
-          ),
-
-
-          const VerticalDivider(
-            thickness: 10,
-            width: 10,
-          ),
-          Expanded(
-            child: TextView()
-          ),
-        ],
+            Expanded(child: TextView()),
+          ],
+        ),
       ),
     );
   }
@@ -75,114 +52,120 @@ class TextView extends StatefulWidget {
 
   @override
   State<TextView> createState() => _TextViewState();
-
-  final QuillController _controller = QuillController.basic();
 }
 
 class _TextViewState extends State<TextView> {
   final _focusNode = FocusNode();
 
-  //TODO : Everything regarding this method needs to be removed. This is just a test and will be implemented right when shortcuts are added later
-  void _b(RawKeyEvent value) {
-      if (value is RawKeyDownEvent) {
-        if(value.logicalKey == LogicalKeyboardKey.controlLeft) {
-          widget._controller.formatText(widget._controller.selection.end, 0, Attribute.bold);
-        }
-      if(value.logicalKey == LogicalKeyboardKey.keyU) {
-          widget._controller.formatText(widget._controller.selection.end, 0, Attribute.underline);
-        }
-      if(value.logicalKey == LogicalKeyboardKey.keyI) {
-          widget._controller.formatText(widget._controller.selection.end, 0, null);
-        }
-      }
-  }
-
-  @override
-  void dispose() {
-    RawKeyboard.instance.removeListener(_b);
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
-    RawKeyboard.instance.addListener(_b);
-
-    QuillEditor editor =  QuillEditor(
-              controller: widget._controller,
-              scrollController: ScrollController(),
-              scrollable: true,
-              focusNode: _focusNode,
-              autoFocus: false,
-              readOnly: false,
-              placeholder: 'Start Typing...',
-              expands: false,
-              padding: EdgeInsets.zero,
-
-              customStyles: DefaultStyles(
-                placeHolder: DefaultTextBlockStyle(
-                  const TextStyle(
-                    fontFamily: "RobotoMono",
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
-                  const Tuple2(8, 0),
-                  const Tuple2(0, 0),
-                  null
-                ),
-                paragraph: DefaultTextBlockStyle(
-                  const TextStyle(
-                    fontFamily: "RobotoMono",
-                    fontSize: 16,
-                    color: Colors.black,
-                  ),
-                  const Tuple2(8, 0),
-                  const Tuple2(0, 0),
-                  null
-                ),
-                h1: DefaultTextBlockStyle(
-                  const TextStyle(
-                    fontFamily: "RobotoMono",
-                    fontSize: 48,
-                    color: Colors.black,
-                  ),
-                  const Tuple2(8, 0),
-                  const Tuple2(0, 0),
-                  null
-                ),
-              ),
-            );
-        
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 5),
           child: QuillToolbar.basic(
-            controller: widget._controller,
-
-            showAlignmentButtons: true,
-            showDividers: true,
-
-            showBackgroundColorButton: false,
-            showLink: false,
-            showColorButton: false,
-            showCodeBlock: false,
-            showInlineCode: false,
-            showFontFamily: false,
-            showFontSize: false,
-            showImageButton: false,
-            showVideoButton: false,
-            
-            fontFamilyValues: const {"Roboto Mono": "RobotoMono"}
-
-          ),
+              controller: Provider.of<TextEditorModel>(context).quillController,
+              showAlignmentButtons: true,
+              showDividers: true,
+              showBackgroundColorButton: false,
+              showLink: false,
+              showColorButton: false,
+              showCodeBlock: false,
+              showInlineCode: false,
+              showFontFamily: false,
+              showFontSize: false,
+              showImageButton: false,
+              showVideoButton: false,
+              fontFamilyValues: const {"Roboto Mono": "RobotoMono"}),
         ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-            child: editor,
+            child: QuillEditor(
+              controller: Provider.of<TextEditorModel>(context, listen: false)
+                  .quillController,
+              scrollController: ScrollController(),
+              scrollable: true,
+              focusNode: _focusNode,
+              autoFocus: true,
+              readOnly: false,
+              placeholder: 'Start Typing...',
+              expands: false,
+              padding: EdgeInsets.zero,
+              customStyles: DefaultStyles(
+                placeHolder: DefaultTextBlockStyle(
+                    const TextStyle(
+                      fontFamily: "RobotoMono",
+                      fontSize: 16,
+                      color: Colors.grey,
+                    ),
+                    const Tuple2(8, 0),
+                    const Tuple2(0, 0),
+                    null),
+                paragraph: DefaultTextBlockStyle(
+                    const TextStyle(
+                      fontFamily: "RobotoMono",
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                    const Tuple2(8, 0),
+                    const Tuple2(0, 0),
+                    null),
+                h1: DefaultTextBlockStyle(
+                    const TextStyle(
+                      fontFamily: "RobotoMono",
+                      fontSize: 48,
+                      color: Colors.black,
+                    ),
+                    const Tuple2(8, 0),
+                    const Tuple2(0, 0),
+                    null),
+              ),
+            ),
           ),
         ),
       ],
+    );
+  }
+}
+
+class SidePanel extends StatefulWidget {
+  const SidePanel({Key? key}) : super(key: key);
+
+  @override
+  State<SidePanel> createState() => _SidePanelState();
+}
+
+class _SidePanelState extends State<SidePanel> {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<TextEditorModel>(
+      builder: ((context, model, child) => SizedBox(
+        width: 200,
+        child: ListView.builder(
+          itemBuilder: ((context, index) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: TextButton(
+                onPressed: () {
+    
+                },
+                style: ButtonStyle(
+                  shape: MaterialStateProperty.all(const RoundedRectangleBorder()),
+                  backgroundColor: MaterialStateProperty.all(Colors.grey[300]!),
+                  textStyle: MaterialStateProperty.all(const TextStyle(color: Colors.black, fontFamily: "RobotoMono"))
+                ),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                  child: Text(model.notes[index]),
+                ),
+              ),
+            );
+          }),
+          itemCount: model.notes.length,
+        ),
+      )),
     );
   }
 }
