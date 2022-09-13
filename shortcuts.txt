@@ -1,0 +1,28 @@
+||| Keyboard shortcuts |||
+
+Application Shortcuts :
+    - Ctrl + S | Save current note
+
+
+Editing Text:
+    - Ctrl + B | Bold
+    - Ctrl + I | Italics
+    - Ctrl + U | Underline
+    - Ctrl + Alt + S | Strikethrough
+
+    - Ctrl + Shift + L | Left Alignment
+    - Ctrl + Shift + E | Center Alignment
+    - Ctrl + Shift + R | Right Alignment
+
+    - Ctrl + 1 | H1
+    - Ctrl + 2 | H2
+    - Ctrl + 3 | H3
+    - Ctrl + 4 | Paragraph
+
+    - Ctrl + Shift + 7 | Ordered List
+    - Ctrl + Shift + 8 | Unordered List
+    - Ctrl + Shift + 9 | Check Boxes
+
+    - Ctrl + Shift + 6 | Block Quote
+    - Ctrl + [ (left bracket) | Indent Left
+    - Ctrl + ] (right bracket) | Indent Right
