@@ -121,11 +121,22 @@ class TextEditorModel extends ChangeNotifier {
       },
       // indent left
       const SingleActivator(LogicalKeyboardKey.bracketLeft, control: true): () {
-        quillController.formatSelection(Attribute.indent);
+        var indent = quillController.getSelectionStyle().attributes[Attribute.indent.key];
+        if (indent != null) {
+          if(indent.value > 0) {
+            quillController.formatSelection(Attribute.getIndentLevel(indent.value - 1));
+          }
+        }
       },
-      // indent right //TODO : allow for multiple indents
+      // indent right
       const SingleActivator(LogicalKeyboardKey.bracketRight, control: true): () {
-        quillController.formatSelection(Attribute.indentL1);
+        var indent = quillController.getSelectionStyle().attributes[Attribute.indent.key];
+        if(indent == null) {
+          quillController.formatSelection(Attribute.indentL1);
+        }
+        else {
+          quillController.formatSelection(Attribute.getIndentLevel(indent.value + 1));
+        }
       },
   
       //undo
