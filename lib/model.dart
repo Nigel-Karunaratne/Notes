@@ -127,6 +127,15 @@ class TextEditorModel extends ChangeNotifier {
       const SingleActivator(LogicalKeyboardKey.bracketRight, control: true): () {
         quillController.formatSelection(Attribute.indentL1);
       },
+  
+      //undo
+      const SingleActivator(LogicalKeyboardKey.keyZ, control: true): () {
+        quillController.undo();
+      },
+      //redo
+      const SingleActivator(LogicalKeyboardKey.keyY, control: true): () {
+        quillController.redo();
+      },
     };
   }
 
